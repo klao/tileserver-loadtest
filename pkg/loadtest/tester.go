@@ -130,23 +130,24 @@ func (t *Tester) worker(ctx context.Context, resultChan chan<- Result) {
 			req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 			if err != nil {
 				resultChan <- Result{
-					Latency:   0,
-					Success:   false,
-					Timestamp: time.Now(),
+					Latency:    0,
+					Success:    false,
+					StatusCode: 0,
 				}
 				continue
 			}
 
 			resp, err := t.client.Do(req)
 
-			if err != nil || resp == nil || resp.StatusCode != http.StatusOK {
+			if err != nil || resp == nil {
 				latency := time.Since(startTime)
 				resultChan <- Result{
-					Latency:   latency,
-					Success:   false,
-					Timestamp: time.Now(),
+					Latency:    latency,
+					Success:    false,
+					StatusCode: 0,
 				}
 			} else {
+				success := resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent || resp.StatusCode == http.StatusNotFound
 				// Read and discard the full body to ensure we measure complete download time
 				_, bodyErr := io.Copy(io.Discard, resp.Body)
 				resp.Body.Close()
@@ -155,11 +156,11 @@ func (t *Tester) worker(ctx context.Context, resultChan chan<- Result) {
 				latency := time.Since(startTime)
 
 				// Only consider it successful if we could read the entire body
-				success := bodyErr == nil
+				success = success && bodyErr == nil
 				resultChan <- Result{
-					Latency:   latency,
-					Success:   success,
-					Timestamp: time.Now(),
+					Latency:    latency,
+					Success:    success,
+					StatusCode: resp.StatusCode,
 				}
 			}
 		}
@@ -260,6 +261,12 @@ func (t *Tester) writeResults(results TestResults) error {
 	fmt.Printf("99th percentile: %.2f ms\n", results.P99Latency)
 	fmt.Printf("Success rate: %.2f%%\n", results.SuccessRate)
 	fmt.Printf("Test duration: %.2f seconds\n", results.TestDuration)
+
+	// Print status code breakdown
+	fmt.Println("\nStatus code breakdown:")
+	for code, count := range results.StatusCodes {
+		fmt.Printf("  %d: %d (%.1f%%)\n", code, count, float64(count)/float64(results.TotalRequests)*100)
+	}
 
 	return nil
 }

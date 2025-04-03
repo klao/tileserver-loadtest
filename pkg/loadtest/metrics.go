@@ -8,25 +8,27 @@ import (
 
 // Result represents a single request result
 type Result struct {
-	Latency   time.Duration
-	Success   bool
-	Timestamp time.Time
+	Latency    time.Duration
+	Success    bool
+	StatusCode int
 }
 
 // Metrics tracks and calculates performance metrics for the load test
 type Metrics struct {
-	latencies []time.Duration
-	failures  int
-	totalReqs int
-	startTime time.Time
-	endTime   time.Time
+	latencies     []time.Duration
+	failures      int
+	totalReqs     int
+	startTime     time.Time
+	endTime       time.Time
+	statusCodeMap map[int]int
 }
 
 // NewMetrics creates a new Metrics instance
 func NewMetrics() *Metrics {
 	return &Metrics{
-		latencies: make([]time.Duration, 0, 1000),
-		startTime: time.Now(),
+		latencies:     make([]time.Duration, 0, 1000),
+		startTime:     time.Now(),
+		statusCodeMap: make(map[int]int),
 	}
 }
 
@@ -43,6 +45,7 @@ func (m *Metrics) End() {
 // AddResult adds a result to the metrics
 func (m *Metrics) AddResult(result Result) {
 	m.totalReqs++
+	m.statusCodeMap[result.StatusCode]++
 
 	if result.Success {
 		m.latencies = append(m.latencies, result.Latency)
@@ -101,6 +104,7 @@ func (m *Metrics) Results() TestResults {
 		HadFailures:    hadFailures,
 		TestDuration:   duration,
 		SuccessRate:    successRate,
+		StatusCodes:    m.statusCodeMap,
 	}
 }
 
@@ -114,4 +118,5 @@ type TestResults struct {
 	HadFailures    bool
 	TestDuration   float64
 	SuccessRate    float64
+	StatusCodes    map[int]int
 }
