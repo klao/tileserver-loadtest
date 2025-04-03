@@ -56,7 +56,7 @@ func (t *Tester) Run() error {
 	// Set up context with cancellation for duration limit
 	var ctx context.Context
 	var cancel context.CancelFunc
-	
+
 	if t.config.Duration != "" {
 		duration, err := time.ParseDuration(t.config.Duration)
 		if err != nil {
@@ -70,7 +70,7 @@ func (t *Tester) Run() error {
 
 	// Channel for collecting results
 	resultChan := make(chan Result, t.config.Threads*10)
-	
+
 	// Start worker goroutines
 	fmt.Printf("Starting %d worker threads...\n", t.config.Threads)
 	for i := 0; i < t.config.Threads; i++ {
@@ -80,30 +80,33 @@ func (t *Tester) Run() error {
 	// Start metrics collection
 	metrics := NewMetrics()
 	metrics.Start()
-	
+
 	// Process results in the main thread
 	requestCount := 0
 	metrics.Start()
-	
+
 	// Process results until context is cancelled
 	for {
 		select {
 		case <-ctx.Done():
 			// Test duration exceeded
-			fmt.Println("Test duration reached, waiting for workers to complete...")
+			fmt.Println("Test duration reached, stopping test...")
 			metrics.End()
-			close(resultChan)
+
+			// Don't close the channel here since workers might still be running
+			// Just break out of the loop and let deferred cancel() terminate workers
 			return t.writeResults(metrics.Results())
+
 		case result, ok := <-resultChan:
 			if !ok {
 				// Channel closed, all workers done
 				metrics.End()
 				return t.writeResults(metrics.Results())
 			}
-			
+
 			metrics.AddResult(result)
 			requestCount++
-			
+
 			// Periodically print progress
 			if requestCount%100 == 0 {
 				fmt.Printf("Processed %d requests...\n", requestCount)
@@ -122,7 +125,7 @@ func (t *Tester) worker(ctx context.Context, resultChan chan<- Result) {
 			// Generate tile and make request
 			tile := t.tileGenerator.NextTile()
 			url := t.tileGenerator.FormatURL(tile)
-			
+
 			startTime := time.Now()
 			req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 			if err != nil {
@@ -133,10 +136,10 @@ func (t *Tester) worker(ctx context.Context, resultChan chan<- Result) {
 				}
 				continue
 			}
-			
+
 			resp, err := t.client.Do(req)
 			latency := time.Since(startTime)
-			
+
 			if err != nil || resp.StatusCode != http.StatusOK {
 				resultChan <- Result{
 					Latency:   latency,
