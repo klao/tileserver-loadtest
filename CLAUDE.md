@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Code Style Guidelines
 - Use standard Go formatting conventions with `gofmt`
+- IMPORTANT: Go code is indented with tabs, not spaces
 - Follow Go naming conventions (CamelCase for exported, camelCase for internal)
 - Imports: group standard library, external, and internal imports
 - Use meaningful variable/function names that reflect purpose
