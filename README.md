@@ -9,15 +9,15 @@ This tool helps evaluate performance characteristics of tile servers by generati
 ## Usage
 
 ```
-tile-load-test --url "https://tile.server/path/{z}/{x}/{y}.pbf"
-               --min-zoom 10 --max-zoom 14
+tile-load-test --url 'https://tile.server/path/{z}/{x}/{y}.pbf'
+               --zoom 14
                --min-x 1000 --max-x 1100
                --min-y 1000 --max-y 1100
-               --threads 10
                --pattern random
+               --threads 10
                --duration 60s
-               --name "tileserver-ng"
-               --environment "nginx+ram"
+               --name 'tileserver-ng'
+               --environment 'nginx+ram'
                --output results.csv
 ```
 

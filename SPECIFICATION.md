@@ -8,7 +8,7 @@ A command-line tool for load testing map tile servers, written in Go. This tool 
 ### Input Parameters
 - **Tile URL Template**: A URL pattern with placeholders for zoom, x, and y coordinates (e.g., `https://tile.server/path/{z}/{x}/{y}.pbf`)
 - **Coordinate Ranges**:
-  - Zoom (`z`): Min and max zoom levels
+  - Zoom level (`z`)
   - X coordinates: Min and max values
   - Y coordinates: Min and max values
 - **Concurrency**: Number of parallel threads to use for requests
@@ -38,7 +38,7 @@ The tool should support two request patterns:
 ### Output Format
 - **CSV Output**: Each test should append a single line to a CSV file
 - The CSV should include all test parameters and results
-- Format should include: timestamp, name, environment, request pattern, thread count, min/max zoom/x/y, total requests, average latency, 95th percentile, 99th percentile, failures flag, test duration
+- Format should include: timestamp, name, environment, request pattern, thread count, zoom, min/max x/y, total requests, average latency, 95th percentile, 99th percentile, failures flag, test duration
 
 ## Implementation Details
 
@@ -49,22 +49,22 @@ The tool should support two request patterns:
 
 ### Command-Line Interface
 ```
-tile-load-test --url "https://tile.server/path/{z}/{x}/{y}.pbf"
-               --min-zoom 10 --max-zoom 14
+tile-load-test --url 'https://tile.server/path/{z}/{x}/{y}.pbf'
+               --zoom 14
                --min-x 1000 --max-x 1100
                --min-y 1000 --max-y 1100
-               --threads 10
                --pattern random
+               --threads 10
                --duration 60s
-               --name "tileserver-ng"
-               --environment "nginx+ram"
+               --name 'tileserver-ng'
+               --environment 'nginx+ram'
                --output results.csv
 ```
 
 ### CSV Format
 Example CSV line:
 ```
-2025-04-03T14:30:45Z,tileserver-ng,nginx+ram,random,10,10,14,1000,1100,1000,1100,5000,127.3,245.6,389.2,false,60.0
+2025-04-03T14:30:45Z,tileserver-ng,nginx+ram,random,10,14,1000,1100,1000,1100,5000,127.3,245.6,389.2,false,60.0
 ```
 Fields:
 1. Timestamp
@@ -72,18 +72,17 @@ Fields:
 3. Environment
 4. Pattern
 5. Thread count
-6. Min zoom
-7. Max zoom
-8. Min X
-9. Max X
-10. Min Y
-11. Max Y
-12. Total requests
-13. Average latency (ms)
-14. 95th percentile latency (ms)
-15. 99th percentile latency (ms)
-16. Had failures (true/false)
-17. Test duration (seconds)
+6. Zoom
+7. Min X
+8. Max X
+9. Min Y
+10. Max Y
+11. Total requests
+12. Average latency (ms)
+13. 95th percentile latency (ms)
+14. 99th percentile latency (ms)
+15. Had failures (true/false)
+16. Test duration (seconds)
 
 ### Error Handling
 - Validate input parameters before starting the test
