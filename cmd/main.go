@@ -35,19 +35,19 @@ func main() {
 
 	// Create and run the test
 	config := loadtest.Config{
-		URLTemplate:  *url,
-		MinZoom:      *minZoom,
-		MaxZoom:      *maxZoom,
-		MinX:         *minX,
-		MaxX:         *maxX,
-		MinY:         *minY,
-		MaxY:         *maxY,
-		Threads:      *threads,
-		Pattern:      *pattern,
-		Duration:     *duration,
-		Name:         *name,
-		Environment:  *environment,
-		OutputPath:   *output,
+		URLTemplate: *url,
+		MinZoom:     *minZoom,
+		MaxZoom:     *maxZoom,
+		MinX:        *minX,
+		MaxX:        *maxX,
+		MinY:        *minY,
+		MaxY:        *maxY,
+		Threads:     *threads,
+		Pattern:     *pattern,
+		Duration:    *duration,
+		Name:        *name,
+		Environment: *environment,
+		OutputPath:  *output,
 	}
 
 	tester := loadtest.NewTester(config)

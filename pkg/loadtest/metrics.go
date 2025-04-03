@@ -8,18 +8,18 @@ import (
 
 // Result represents a single request result
 type Result struct {
-	Latency  time.Duration
-	Success  bool
+	Latency   time.Duration
+	Success   bool
 	Timestamp time.Time
 }
 
 // Metrics tracks and calculates performance metrics for the load test
 type Metrics struct {
-	latencies  []time.Duration
-	failures   int
-	totalReqs  int
-	startTime  time.Time
-	endTime    time.Time
+	latencies []time.Duration
+	failures  int
+	totalReqs int
+	startTime time.Time
+	endTime   time.Time
 }
 
 // NewMetrics creates a new Metrics instance
@@ -43,7 +43,7 @@ func (m *Metrics) End() {
 // AddResult adds a result to the metrics
 func (m *Metrics) AddResult(result Result) {
 	m.totalReqs++
-	
+
 	if result.Success {
 		m.latencies = append(m.latencies, result.Latency)
 	} else {
@@ -76,17 +76,17 @@ func (m *Metrics) Results() TestResults {
 		if len(m.latencies) > 1 {
 			p95Index := int(math.Ceil(float64(len(m.latencies))*0.95)) - 1
 			p99Index := int(math.Ceil(float64(len(m.latencies))*0.99)) - 1
-			
+
 			if p95Index >= 0 && p95Index < len(m.latencies) {
 				p95Latency = float64(m.latencies[p95Index]) / float64(time.Millisecond)
 			}
-			
+
 			if p99Index >= 0 && p99Index < len(m.latencies) {
 				p99Latency = float64(m.latencies[p99Index]) / float64(time.Millisecond)
 			}
 		}
 	}
-	
+
 	var successRate float64
 	if totalReqs > 0 {
 		successRate = float64(totalReqs-m.failures) / float64(totalReqs) * 100

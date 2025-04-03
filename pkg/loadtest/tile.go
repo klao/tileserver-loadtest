@@ -31,7 +31,7 @@ func (g *TileGenerator) NextTile() Tile {
 	z := g.config.MinZoom + rand.Intn(g.config.MaxZoom-g.config.MinZoom+1)
 	x := g.config.MinX + rand.Intn(g.config.MaxX-g.config.MinX+1)
 	y := g.config.MinY + rand.Intn(g.config.MaxY-g.config.MinY+1)
-	
+
 	return Tile{Z: z, X: x, Y: y}
 }
 
