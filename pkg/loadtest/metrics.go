@@ -93,23 +93,25 @@ func (m *Metrics) Results() TestResults {
 	}
 
 	return TestResults{
-		TotalRequests: totalReqs,
-		AvgLatency:    avgLatency,
-		P95Latency:    p95Latency,
-		P99Latency:    p99Latency,
-		HadFailures:   hadFailures,
-		TestDuration:  duration,
-		SuccessRate:   successRate,
+		TotalRequests:  totalReqs,
+		FailedRequests: m.failures,
+		AvgLatency:     avgLatency,
+		P95Latency:     p95Latency,
+		P99Latency:     p99Latency,
+		HadFailures:    hadFailures,
+		TestDuration:   duration,
+		SuccessRate:    successRate,
 	}
 }
 
 // TestResults contains the calculated metrics from a load test
 type TestResults struct {
-	TotalRequests int
-	AvgLatency    float64
-	P95Latency    float64
-	P99Latency    float64
-	HadFailures   bool
-	TestDuration  float64
-	SuccessRate   float64
+	TotalRequests  int
+	FailedRequests int
+	AvgLatency     float64
+	P95Latency     float64
+	P99Latency     float64
+	HadFailures    bool
+	TestDuration   float64
+	SuccessRate    float64
 }

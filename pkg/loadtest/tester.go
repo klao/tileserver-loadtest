@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -83,7 +84,6 @@ func (t *Tester) Run() error {
 
 	// Process results in the main thread
 	requestCount := 0
-	metrics.Start()
 
 	// Process results until context is cancelled
 	for {
@@ -138,19 +138,27 @@ func (t *Tester) worker(ctx context.Context, resultChan chan<- Result) {
 			}
 
 			resp, err := t.client.Do(req)
-			latency := time.Since(startTime)
 
-			if err != nil || resp.StatusCode != http.StatusOK {
+			if err != nil || resp == nil || resp.StatusCode != http.StatusOK {
+				latency := time.Since(startTime)
 				resultChan <- Result{
 					Latency:   latency,
 					Success:   false,
 					Timestamp: time.Now(),
 				}
 			} else {
+				// Read and discard the full body to ensure we measure complete download time
+				_, bodyErr := io.Copy(io.Discard, resp.Body)
 				resp.Body.Close()
+
+				// Calculate latency after fully reading the body
+				latency := time.Since(startTime)
+
+				// Only consider it successful if we could read the entire body
+				success := bodyErr == nil
 				resultChan <- Result{
 					Latency:   latency,
-					Success:   true,
+					Success:   success,
 					Timestamp: time.Now(),
 				}
 			}
@@ -246,6 +254,7 @@ func (t *Tester) writeResults(results TestResults) error {
 	fmt.Println("Test completed successfully")
 	fmt.Printf("Results written to %s\n", t.config.OutputPath)
 	fmt.Printf("Total requests: %d\n", results.TotalRequests)
+	fmt.Printf("Failed requests: %d\n", results.FailedRequests)
 	fmt.Printf("Average latency: %.2f ms\n", results.AvgLatency)
 	fmt.Printf("95th percentile: %.2f ms\n", results.P95Latency)
 	fmt.Printf("99th percentile: %.2f ms\n", results.P99Latency)
