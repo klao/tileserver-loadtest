@@ -11,8 +11,7 @@ import (
 func main() {
 	// Parse command line flags
 	url := flag.String("url", "", "Tile URL template (e.g., https://tile.server/path/{z}/{x}/{y}.pbf)")
-	minZoom := flag.Int("min-zoom", 0, "Minimum zoom level")
-	maxZoom := flag.Int("max-zoom", 0, "Maximum zoom level")
+	zoom := flag.Int("zoom", 0, "Zoom level")
 	minX := flag.Int("min-x", 0, "Minimum X coordinate")
 	maxX := flag.Int("max-x", 0, "Maximum X coordinate")
 	minY := flag.Int("min-y", 0, "Minimum Y coordinate")
@@ -36,8 +35,7 @@ func main() {
 	// Create and run the test
 	config := loadtest.Config{
 		URLTemplate: *url,
-		MinZoom:     *minZoom,
-		MaxZoom:     *maxZoom,
+		Zoom:        *zoom,
 		MinX:        *minX,
 		MaxX:        *maxX,
 		MinY:        *minY,

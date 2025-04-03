@@ -43,8 +43,8 @@ func (t *Tester) Run() error {
 
 	fmt.Println("Starting load test...")
 	fmt.Printf("URL Template: %s\n", t.config.URLTemplate)
-	fmt.Printf("Zoom: %d-%d, X: %d-%d, Y: %d-%d\n",
-		t.config.MinZoom, t.config.MaxZoom,
+	fmt.Printf("Zoom: %d, X: %d-%d, Y: %d-%d\n",
+		t.config.Zoom,
 		t.config.MinX, t.config.MaxX,
 		t.config.MinY, t.config.MaxY)
 	fmt.Printf("Threads: %d, Pattern: %s\n", t.config.Threads, t.config.Pattern)
@@ -173,10 +173,6 @@ func (t *Tester) validateConfig() error {
 		return errors.New("URL template is required")
 	}
 
-	if t.config.MinZoom > t.config.MaxZoom {
-		return errors.New("min zoom must be less than or equal to max zoom")
-	}
-
 	if t.config.MinX > t.config.MaxX {
 		return errors.New("min X must be less than or equal to max X")
 	}
@@ -216,7 +212,7 @@ func (t *Tester) writeResults(results TestResults) error {
 
 	// Write headers if needed
 	if writeHeaders {
-		headers := "timestamp,name,environment,pattern,threads,min_zoom,max_zoom,min_x,max_x,min_y,max_y,total_requests,avg_latency,p95_latency,p99_latency,had_failures,duration\n"
+		headers := "timestamp,name,environment,pattern,threads,zoom,min_x,max_x,min_y,max_y,total_requests,avg_latency,p95_latency,p99_latency,had_failures,duration\n"
 		if _, err := file.WriteString(headers); err != nil {
 			return fmt.Errorf("failed to write headers: %w", err)
 		}
@@ -232,8 +228,7 @@ func (t *Tester) writeResults(results TestResults) error {
 		t.config.Environment,
 		t.config.Pattern,
 		strconv.Itoa(t.config.Threads),
-		strconv.Itoa(t.config.MinZoom),
-		strconv.Itoa(t.config.MaxZoom),
+		strconv.Itoa(t.config.Zoom),
 		strconv.Itoa(t.config.MinX),
 		strconv.Itoa(t.config.MaxX),
 		strconv.Itoa(t.config.MinY),

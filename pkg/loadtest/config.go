@@ -3,8 +3,7 @@ package loadtest
 // Config holds the configuration parameters for a load test
 type Config struct {
 	URLTemplate string // URL pattern with placeholders for zoom, x, and y coordinates
-	MinZoom     int    // Minimum zoom level
-	MaxZoom     int    // Maximum zoom level
+	Zoom        int    // Zoom level
 	MinX        int    // Minimum X coordinate
 	MaxX        int    // Maximum X coordinate
 	MinY        int    // Minimum Y coordinate

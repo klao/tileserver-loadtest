@@ -27,12 +27,11 @@ func NewTileGenerator(config Config) *TileGenerator {
 
 // NextTile returns the next tile to request based on the pattern
 func (g *TileGenerator) NextTile() Tile {
-	// For random pattern, generate a new random tile
-	z := g.config.MinZoom + rand.Intn(g.config.MaxZoom-g.config.MinZoom+1)
+	// For random pattern, generate a new random tile within bounds
 	x := g.config.MinX + rand.Intn(g.config.MaxX-g.config.MinX+1)
 	y := g.config.MinY + rand.Intn(g.config.MaxY-g.config.MinY+1)
 
-	return Tile{Z: z, X: x, Y: y}
+	return Tile{Z: g.config.Zoom, X: x, Y: y}
 }
 
 // FormatURL formats the URL template with the tile coordinates
