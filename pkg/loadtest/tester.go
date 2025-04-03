@@ -24,7 +24,7 @@ type Tester struct {
 func NewTester(config Config) *Tester {
 	// Set up HTTP client with timeout
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: 1 * time.Second,
 	}
 
 	return &Tester{
@@ -108,7 +108,7 @@ func (t *Tester) Run() error {
 			requestCount++
 
 			// Periodically print progress
-			if requestCount%100 == 0 {
+			if requestCount%10000 == 0 {
 				fmt.Printf("Processed %d requests...\n", requestCount)
 			}
 		}
@@ -212,7 +212,7 @@ func (t *Tester) writeResults(results TestResults) error {
 
 	// Write headers if needed
 	if writeHeaders {
-		headers := "timestamp,name,environment,pattern,threads,zoom,min_x,max_x,min_y,max_y,total_requests,avg_latency,p95_latency,p99_latency,had_failures,duration\n"
+		headers := "timestamp,name,environment,pattern,threads,duration,had_failures,total_requests,failed_requests,avg_latency,p95_latency,p99_latency,qps,thread_qps,zoom,min_x,max_x,min_y,max_y\n"
 		if _, err := file.WriteString(headers); err != nil {
 			return fmt.Errorf("failed to write headers: %w", err)
 		}
@@ -220,6 +220,7 @@ func (t *Tester) writeResults(results TestResults) error {
 
 	// Format current time
 	timestamp := time.Now().UTC().Format(time.RFC3339)
+	qps := float64(results.TotalRequests) / results.TestDuration
 
 	// Build CSV line
 	fields := []string{
@@ -228,17 +229,20 @@ func (t *Tester) writeResults(results TestResults) error {
 		t.config.Environment,
 		t.config.Pattern,
 		strconv.Itoa(t.config.Threads),
+		fmt.Sprintf("%.1f", results.TestDuration),
+		strconv.FormatBool(results.HadFailures),
+		strconv.Itoa(results.TotalRequests),
+		strconv.Itoa(results.FailedRequests),
+		fmt.Sprintf("%.1f", results.AvgLatency),
+		fmt.Sprintf("%.1f", results.P95Latency),
+		fmt.Sprintf("%.1f", results.P99Latency),
+		fmt.Sprintf("%.1f", qps),
+		fmt.Sprintf("%.1f", qps/float64(t.config.Threads)),
 		strconv.Itoa(t.config.Zoom),
 		strconv.Itoa(t.config.MinX),
 		strconv.Itoa(t.config.MaxX),
 		strconv.Itoa(t.config.MinY),
 		strconv.Itoa(t.config.MaxY),
-		strconv.Itoa(results.TotalRequests),
-		fmt.Sprintf("%.1f", results.AvgLatency),
-		fmt.Sprintf("%.1f", results.P95Latency),
-		fmt.Sprintf("%.1f", results.P99Latency),
-		strconv.FormatBool(results.HadFailures),
-		fmt.Sprintf("%.1f", results.TestDuration),
 	}
 	line := strings.Join(fields, ",") + "\n"
 
@@ -255,6 +259,8 @@ func (t *Tester) writeResults(results TestResults) error {
 	fmt.Printf("95th percentile: %.2f ms\n", results.P95Latency)
 	fmt.Printf("99th percentile: %.2f ms\n", results.P99Latency)
 	fmt.Printf("Success rate: %.2f%%\n", results.SuccessRate)
+	fmt.Printf("QPS: %.2f\n", qps)
+	fmt.Printf("QPS per thread: %.2f\n", qps/float64(t.config.Threads))
 	fmt.Printf("Test duration: %.2f seconds\n", results.TestDuration)
 
 	// Print status code breakdown
