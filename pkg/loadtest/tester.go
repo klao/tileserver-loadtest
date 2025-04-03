@@ -24,7 +24,7 @@ type Tester struct {
 func NewTester(config Config) *Tester {
 	// Set up HTTP client with timeout
 	client := &http.Client{
-		Timeout: 30 * time.Second, // Hard-coded 30 second timeout
+		Timeout: 10 * time.Second,
 	}
 
 	return &Tester{
