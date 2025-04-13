@@ -50,6 +50,9 @@ func (t *Tester) Run() error {
 	fmt.Printf("Threads: %d, Pattern: %s\n", t.config.Threads, t.config.Pattern)
 	fmt.Printf("Name: %s, Environment: %s\n", t.config.Name, t.config.Environment)
 	fmt.Printf("Output: %s\n", t.config.OutputPath)
+	if t.config.AcceptEncoding != "" {
+		fmt.Printf("Accept-Encoding: %s\n", t.config.AcceptEncoding)
+	}
 
 	// Initialize random number generator
 	rand.Seed(time.Now().UnixNano())
@@ -108,7 +111,7 @@ func (t *Tester) Run() error {
 			requestCount++
 
 			// Periodically print progress
-			if requestCount%10000 == 0 {
+			if requestCount%1000 == 0 {
 				fmt.Printf("Processed %d requests...\n", requestCount)
 			}
 		}
@@ -135,6 +138,11 @@ func (t *Tester) worker(ctx context.Context, resultChan chan<- Result) {
 					StatusCode: 0,
 				}
 				continue
+			}
+
+			// Set Accept-Encoding header if configured
+			if t.config.AcceptEncoding != "" {
+				req.Header.Set("Accept-Encoding", t.config.AcceptEncoding)
 			}
 
 			resp, err := t.client.Do(req)

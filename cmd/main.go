@@ -22,6 +22,7 @@ func main() {
 	name := flag.String("name", "default", "Name identifier for the tile server")
 	environment := flag.String("environment", "default", "Environment description")
 	output := flag.String("output", "results.csv", "Output CSV file path")
+	acceptEncoding := flag.String("accept-encoding", "", "Value for the Accept-Encoding header (e.g., gzip, deflate)")
 
 	flag.Parse()
 
@@ -34,18 +35,19 @@ func main() {
 
 	// Create and run the test
 	config := loadtest.Config{
-		URLTemplate: *url,
-		Zoom:        *zoom,
-		MinX:        *minX,
-		MaxX:        *maxX,
-		MinY:        *minY,
-		MaxY:        *maxY,
-		Threads:     *threads,
-		Pattern:     *pattern,
-		Duration:    *duration,
-		Name:        *name,
-		Environment: *environment,
-		OutputPath:  *output,
+		URLTemplate:    *url,
+		Zoom:           *zoom,
+		MinX:           *minX,
+		MaxX:           *maxX,
+		MinY:           *minY,
+		MaxY:           *maxY,
+		Threads:        *threads,
+		Pattern:        *pattern,
+		Duration:       *duration,
+		Name:           *name,
+		Environment:    *environment,
+		OutputPath:     *output,
+		AcceptEncoding: *acceptEncoding,
 	}
 
 	tester := loadtest.NewTester(config)
