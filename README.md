@@ -21,6 +21,21 @@ tile-load-test --url 'https://tile.server/path/{z}/{x}/{y}.pbf'
                --output results.csv
 ```
 
+For example, this works well for a versatiles-rs server serving tiles for Switzerland:
+
+```
+tile-load-test --url 'https://tile.server/tiles/ch/{z}/{x}/{y}'
+               --zoom 14
+               --min-x 8510 --max-x 8610
+               --min-y 5730 --max-y 5800
+               --pattern random
+               --threads 10
+               --duration 60s
+               --name 'versatiles'
+               --environment 'nginx+ram'
+               --output results.csv
+```
+
 ## Features
 
 - Generate random or fixed pattern tile requests
@@ -32,7 +47,7 @@ tile-load-test --url 'https://tile.server/path/{z}/{x}/{y}.pbf'
 ## Build
 
 ```
-go build -o tile-load-test cmd/main.go
+CGO_ENABLED=0 go build -o tile-load-test cmd/main.go
 ```
 
 ## License
